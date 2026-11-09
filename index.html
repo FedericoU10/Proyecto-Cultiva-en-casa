@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cultiva en Casa — Huerta de Lechuga</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="main.js" defer></script>
+</head>
+<body>
+<div id="app-container">
+
+    <header id="header" class="smart-header">
+        <div class="wrap header-contenido">
+            <div class="identidad">
+                <h1>Cultiva en Casa</h1>
+                <p>Huerta de Lechuga (12 m²)</p>
+            </div>
+            <div id="estado-wifi" class="estado-conexion en-linea" role="status" aria-live="polite">
+                <span aria-hidden="true">📶</span>
+                <span id="texto-wifi">Sensores: En línea</span>
+            </div>
+            <button id="btn-menu" class="btn-hamburguesa" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="menu-navegacion">
+                <span class="linea-hamburguesa"></span><span class="linea-hamburguesa"></span><span class="linea-hamburguesa"></span>
+            </button>
+        </div>
+        <nav id="menu-navegacion" class="menu-desplegable" aria-label="Principal" aria-hidden="true">
+            <ul class="lista-menu">
+                <li><a href="#dashboard" class="enlace-menu">🏠 Inicio</a></li>
+                <li><a href="#estadisticas" class="enlace-menu">📊 Estadísticas</a></li>
+                <li><a href="#recomendaciones" class="enlace-menu">📖 Recomendaciones</a></li>
+                <li><a href="#evaluacion-beta" class="enlace-menu">🧪 Evaluación y Beta</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="contenido-principal">
+
+        <!-- 1. PANEL EN TIEMPO REAL -->
+        <section id="dashboard" class="seccion-spa">
+            <h2>Panel de monitoreo en tiempo real</h2>
+            <div class="rejilla">
+                <article class="tarjeta-medidor">
+                    <h3>Humedad del suelo</h3>
+                    <figure class="contenedor-donuts">
+                        <div class="grafico-dona dona-humedad"><div id="aguja-humedad" class="aguja-indicador"></div></div>
+                        <p class="lectura-valor"><span id="val-humedad">65</span>% <span aria-hidden="true">💧</span></p>
+                        <p id="est-humedad" class="estado-lectura">Óptima</p>
+                        <figcaption id="cap-humedad" class="sr-only">Humedad del suelo actual: 65%. Óptima.</figcaption>
+                    </figure>
+                    <div id="alerta-humedad" class="alerta-contenedor oculta" role="alert" aria-live="assertive"></div>
+                </article>
+
+                <article class="tarjeta-medidor">
+                    <h3>Temperatura ambiental</h3>
+                    <figure class="contenedor-donuts">
+                        <div class="grafico-dona dona-temperatura"><div id="aguja-temperatura" class="aguja-indicador"></div></div>
+                        <p class="lectura-valor"><span id="val-temperatura">21.5</span> °C <span aria-hidden="true">🌡️</span></p>
+                        <p id="est-temperatura" class="estado-lectura">Óptima</p>
+                        <figcaption id="cap-temperatura" class="sr-only">Temperatura ambiental actual: 21.5 °C. Óptima.</figcaption>
+                    </figure>
+                </article>
+
+                <article id="panel-riego" class="tarjeta-control">
+                    <h3>Control de riego</h3>
+                    <button id="btn-riego" class="btn-accion-riego" aria-pressed="false">
+                        <span class="icono-btn" aria-hidden="true">🚿</span> Activar riego manual
+                    </button>
+                    <div class="conmutador-modo">
+                        <label for="switch-modo">Riego automatizado:</label>
+                        <input type="checkbox" id="switch-modo" class="input-switch" checked>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- 2. ESTADÍSTICAS -->
+        <section id="estadisticas" class="seccion-spa">
+            <h2>Estadísticas del cultivo</h2>
+            <p id="periodo-texto" class="subtitulo">Últimas 24 horas</p>
+
+            <article class="tarjeta-grafica">
+                <div id="filtros-tiempo" class="selector-pestanas" role="tablist" aria-label="Periodo de las estadísticas">
+                    <button class="btn-tab activa" role="tab" id="tab-diario" data-rango="diario" aria-selected="true" aria-controls="panel-stats">Diario</button>
+                    <button class="btn-tab" role="tab" id="tab-semanal" data-rango="semanal" aria-selected="false" aria-controls="panel-stats" tabindex="-1">Semanal</button>
+                    <button class="btn-tab" role="tab" id="tab-mensual" data-rango="mensual" aria-selected="false" aria-controls="panel-stats" tabindex="-1">Mensual</button>
+                    <button class="btn-tab" role="tab" id="tab-anual" data-rango="anual" aria-selected="false" aria-controls="panel-stats" tabindex="-1">Anual</button>
+                </div>
+
+                <div id="panel-stats" role="tabpanel" aria-labelledby="tab-diario">
+                    <dl id="kpis" class="kpis"></dl>
+
+                    <div class="leyenda">
+                        <span style="--c:#2B6CB0">Humedad (%)</span>
+                        <span class="temp" style="--c:#C05621">Temperatura (°C)</span>
+                        <span class="banda">Humedad ideal 60–80 %</span>
+                    </div>
+                    <div id="grafico"></div>
+                    <p id="lectura-estadistica" class="lectura-estadistica" aria-live="polite"></p>
+                    <p class="nota-datos">Datos simulados (hardware emulado). Toca o pasa el cursor sobre la gráfica para ver cada valor.</p>
+                </div>
+            </article>
+        </section>
+
+        <!-- 3. RECOMENDACIONES -->
+        <section id="recomendaciones" class="seccion-spa">
+            <h2>Guía de buenas prácticas</h2>
+            <div class="rejilla">
+                <article class="tarjeta-info">
+                    <h4>💧 Rango hídrico (lechuga)</h4>
+                    <p>Mantén la humedad entre el <strong>60 % y 80 %</strong>. Por debajo del 30 % la planta se marchita; sobre el 85 % se pudre la raíz.</p>
+                </article>
+                <article class="tarjeta-info">
+                    <h4>🌡️ Control térmico</h4>
+                    <p>Rango óptimo: <strong>18 °C a 24 °C</strong>. Por encima de 30 °C las hojas se vuelven amargas.</p>
+                </article>
+                <article class="tarjeta-info">
+                    <h4>🌿 Micro-aspersión (12 m²)</h4>
+                    <p>Usa pulsos breves de 3 a 5 minutos para evitar la saturación del sustrato en espacios cerrados.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- 4. EVALUACIÓN UX Y BETA -->
+        <section id="evaluacion-beta" class="seccion-spa">
+            <h2>Evaluación UX y módulo beta</h2>
+            <div class="rejilla">
+                <article class="tarjeta-formulario">
+                    <h3>Encuesta Likert (1 a 5)</h3>
+                    <form id="form-likert" class="formulario-ux">
+                        <fieldset class="grupo-pregunta"><legend>1. ¿Qué tan fácil es leer los medidores?</legend>
+                            <div class="opciones-radio">
+                                <label><input type="radio" name="p1" value="1"> 1</label><label><input type="radio" name="p1" value="2"> 2</label><label><input type="radio" name="p1" value="3"> 3</label><label><input type="radio" name="p1" value="4"> 4</label><label><input type="radio" name="p1" value="5" checked> 5</label>
+                            </div></fieldset>
+                        <fieldset class="grupo-pregunta"><legend>2. ¿Qué tan intuitivo es el riego manual?</legend>
+                            <div class="opciones-radio">
+                                <label><input type="radio" name="p2" value="1"> 1</label><label><input type="radio" name="p2" value="2"> 2</label><label><input type="radio" name="p2" value="3"> 3</label><label><input type="radio" name="p2" value="4"> 4</label><label><input type="radio" name="p2" value="5" checked> 5</label>
+                            </div></fieldset>
+                        <fieldset class="grupo-pregunta"><legend>3. ¿Qué tan claras son las alertas?</legend>
+                            <div class="opciones-radio">
+                                <label><input type="radio" name="p3" value="1"> 1</label><label><input type="radio" name="p3" value="2"> 2</label><label><input type="radio" name="p3" value="3"> 3</label><label><input type="radio" name="p3" value="4"> 4</label><label><input type="radio" name="p3" value="5" checked> 5</label>
+                            </div></fieldset>
+                    </form>
+                </article>
+
+                <article class="tarjeta-formulario">
+                    <h3>Net Promoter Score (NPS)</h3>
+                    <form id="form-nps" class="formulario-ux">
+                        <label for="select-nps">¿Recomendarías «Cultiva en Casa»?</label>
+                        <select id="select-nps" name="nps_score" class="desplegable-nps">
+                            <option value="" disabled selected>Selecciona una puntuación (0 a 10)</option>
+                            <option value="0">0 — Improbable</option>
+                            <option>1</option><option>2</option><option>3</option><option>4</option>
+                            <option value="5">5 — Neutral</option>
+                            <option>6</option><option>7</option><option>8</option><option>9</option>
+                            <option value="10">10 — Muy probable</option>
+                        </select>
+                    </form>
+                </article>
+
+                <article id="panel-beta" class="tarjeta-beta">
+                    <h3>Simulador de excepciones (beta)</h3>
+                    <p style="font-size:.85rem">Botones de prueba para evaluación docente:</p>
+                    <div class="botones-beta">
+                        <button id="btn-simular-sequia" class="btn-beta sequia">Forzar sequía (25 %)</button>
+                        <button id="btn-simular-encharcamiento" class="btn-beta encharcamiento">Forzar encharcamiento (90 %)</button>
+                        <button id="btn-simular-reconexion" class="btn-beta lectura">Simular lectura de sensores (6 s)</button>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer id="footer-principal" class="pie-pagina">
+        <div class="contenido-footer">
+            <p><strong>Especificaciones:</strong> Huerta cerrada de 12 m² | Cultivo: Lechuga | Hardware: ESP32 / Arduino (emulado)</p>
+            <p>Desarrollado por: <strong>Federico Moreno Villamizar</strong> — Asignatura: Diseño en Ingeniería — Universidad Libre (2026)</p>
+            <a href="#header" class="enlace-retorno">⬆️ Volver al inicio</a>
+        </div>
+    </footer>
+
+</div>
+</body>
+</html>
