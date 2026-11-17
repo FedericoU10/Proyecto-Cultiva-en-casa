@@ -20,6 +20,7 @@
                 <span aria-hidden="true">📶</span>
                 <span id="texto-wifi">Sensores: En línea</span>
             </div>
+            <button id="btn-tema" class="btn-tema" aria-label="Cambiar a modo oscuro" aria-pressed="false">🌙</button>
             <button id="btn-menu" class="btn-hamburguesa" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="menu-navegacion">
                 <span class="linea-hamburguesa"></span><span class="linea-hamburguesa"></span><span class="linea-hamburguesa"></span>
             </button>
@@ -29,7 +30,7 @@
                 <li><a href="#dashboard" class="enlace-menu">🏠 Inicio</a></li>
                 <li><a href="#estadisticas" class="enlace-menu">📊 Estadísticas</a></li>
                 <li><a href="#recomendaciones" class="enlace-menu">📖 Recomendaciones</a></li>
-                <li><a href="#evaluacion-beta" class="enlace-menu">🧪 Evaluación y Beta</a></li>
+                <li><a href="#evaluacion-beta" class="enlace-menu">🧪 Simulador y beta</a></li>
             </ul>
         </nav>
     </header>
@@ -91,8 +92,8 @@
                     <dl id="kpis" class="kpis"></dl>
 
                     <div class="leyenda">
-                        <span style="--c:#2B6CB0">Humedad (%)</span>
-                        <span class="temp" style="--c:#C05621">Temperatura (°C)</span>
+                        <span style="--c:var(--c-hum)">Humedad (%)</span>
+                        <span class="temp" style="--c:var(--c-temp)">Temperatura (°C)</span>
                         <span class="banda">Humedad ideal 60–80 %</span>
                     </div>
                     <div id="grafico"></div>
@@ -123,51 +124,17 @@
 
         <!-- 4. EVALUACIÓN UX Y BETA -->
         <section id="evaluacion-beta" class="seccion-spa">
-            <h2>Evaluación UX y módulo beta</h2>
-            <div class="rejilla">
-                <article class="tarjeta-formulario">
-                    <h3>Encuesta Likert (1 a 5)</h3>
-                    <form id="form-likert" class="formulario-ux">
-                        <fieldset class="grupo-pregunta"><legend>1. ¿Qué tan fácil es leer los medidores?</legend>
-                            <div class="opciones-radio">
-                                <label><input type="radio" name="p1" value="1"> 1</label><label><input type="radio" name="p1" value="2"> 2</label><label><input type="radio" name="p1" value="3"> 3</label><label><input type="radio" name="p1" value="4"> 4</label><label><input type="radio" name="p1" value="5" checked> 5</label>
-                            </div></fieldset>
-                        <fieldset class="grupo-pregunta"><legend>2. ¿Qué tan intuitivo es el riego manual?</legend>
-                            <div class="opciones-radio">
-                                <label><input type="radio" name="p2" value="1"> 1</label><label><input type="radio" name="p2" value="2"> 2</label><label><input type="radio" name="p2" value="3"> 3</label><label><input type="radio" name="p2" value="4"> 4</label><label><input type="radio" name="p2" value="5" checked> 5</label>
-                            </div></fieldset>
-                        <fieldset class="grupo-pregunta"><legend>3. ¿Qué tan claras son las alertas?</legend>
-                            <div class="opciones-radio">
-                                <label><input type="radio" name="p3" value="1"> 1</label><label><input type="radio" name="p3" value="2"> 2</label><label><input type="radio" name="p3" value="3"> 3</label><label><input type="radio" name="p3" value="4"> 4</label><label><input type="radio" name="p3" value="5" checked> 5</label>
-                            </div></fieldset>
-                    </form>
-                </article>
-
-                <article class="tarjeta-formulario">
-                    <h3>Net Promoter Score (NPS)</h3>
-                    <form id="form-nps" class="formulario-ux">
-                        <label for="select-nps">¿Recomendarías «Cultiva en Casa»?</label>
-                        <select id="select-nps" name="nps_score" class="desplegable-nps">
-                            <option value="" disabled selected>Selecciona una puntuación (0 a 10)</option>
-                            <option value="0">0 — Improbable</option>
-                            <option>1</option><option>2</option><option>3</option><option>4</option>
-                            <option value="5">5 — Neutral</option>
-                            <option>6</option><option>7</option><option>8</option><option>9</option>
-                            <option value="10">10 — Muy probable</option>
-                        </select>
-                    </form>
-                </article>
-
-                <article id="panel-beta" class="tarjeta-beta">
+            <h2>Simulador y evaluación (beta)</h2>
+            <article id="panel-beta" class="tarjeta-beta">
                     <h3>Simulador de excepciones (beta)</h3>
                     <p style="font-size:.85rem">Botones de prueba para evaluación docente:</p>
                     <div class="botones-beta">
                         <button id="btn-simular-sequia" class="btn-beta sequia">Forzar sequía (25 %)</button>
                         <button id="btn-simular-encharcamiento" class="btn-beta encharcamiento">Forzar encharcamiento (90 %)</button>
                         <button id="btn-simular-reconexion" class="btn-beta lectura">Simular lectura de sensores (6 s)</button>
+                    <button id="btn-evaluacion-ux" class="btn-beta ux">Evaluación UX</button>
                     </div>
                 </article>
-            </div>
         </section>
     </main>
 
@@ -180,5 +147,24 @@
     </footer>
 
 </div>
+
+<!-- Evaluación UX: panel emergente (centrado en escritorio, desde abajo en celular) -->
+<dialog id="modal-ux" class="modal-ux" aria-labelledby="ux-titulo">
+    <div class="ux-caja">
+        <div class="ux-cabecera">
+            <div>
+                <h2 id="ux-titulo">Encuesta Likert (1 a 5)</h2>
+                <p id="ux-progreso"></p>
+            </div>
+            <button type="button" id="ux-cerrar" class="ux-cerrar" aria-label="Cerrar evaluación">✕</button>
+        </div>
+        <div class="ux-barra" aria-hidden="true"><span id="ux-relleno"></span></div>
+        <div id="ux-cuerpo"></div>
+        <div class="ux-acciones">
+            <button type="button" id="ux-atras" class="ux-btn sec" hidden>Anterior</button>
+            <button type="button" id="ux-sig" class="ux-btn">Siguiente</button>
+        </div>
+    </div>
+</dialog>
 </body>
 </html>
