@@ -7,6 +7,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const $ = id => document.getElementById(id);
 
     // ---------------------------------------------------------------
+    // 0. MODO OSCURO (respeta la preferencia del sistema y recuerda la elección)
+    // ---------------------------------------------------------------
+    const raiz = document.documentElement, btnTema = $('btn-tema');
+    function aplicarTema(t) {
+        raiz.dataset.theme = t;
+        btnTema.textContent = t === 'dark' ? '☀️' : '🌙';
+        btnTema.setAttribute('aria-pressed', String(t === 'dark'));
+        btnTema.setAttribute('aria-label', t === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+    }
+    let temaGuardado = null;
+    try { temaGuardado = localStorage.getItem('cultiva-tema'); } catch (e) {}
+    aplicarTema(temaGuardado || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+    btnTema.addEventListener('click', () => {
+        const t = raiz.dataset.theme === 'dark' ? 'light' : 'dark';
+        aplicarTema(t);
+        try { localStorage.setItem('cultiva-tema', t); } catch (e) {}
+    });
+
+    // ---------------------------------------------------------------
     // 1. MENÚ (hamburguesa en móvil, barra horizontal desde 768 px)
     // ---------------------------------------------------------------
     const btnMenu = $('btn-menu');
@@ -42,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let enRiego = false;
     let riegosSesion = 0;
 
-    const estadoHumedad = p => p < 30 ? 'Sequía' : p < 60 ? 'Baja' : p <= 80 ? 'Óptima' : p <= 85 ? 'Alta' : 'Encharcamiento';
-    const estadoTemp = t => t < 18 ? 'Fría' : t <= 24 ? 'Óptima' : t <= 30 ? 'Cálida' : 'Calor excesivo';
+    const estadoHumedad = p => p < 30 ? 'Sequía' : p > 85 ? 'Encharcamiento' : (p >= 60 && p <= 80) ? 'Óptima' : 'Aceptable';
+    const estadoTemp = t => t < 18 ? 'Fría' : t > 30 ? 'Calor excesivo' : t <= 24 ? 'Óptima' : 'Aceptable';
 
     function actualizarHumedad(valor) {
         const pct = Math.max(0, Math.min(100, valor));
@@ -228,20 +247,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const linea = (k, f) => pts.map((q, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${f(q[k]).toFixed(1)}`).join('');
 
         let s = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Gráfica de humedad y temperatura: ${RANGOS[rangoActual].titulo}">`;
-        s += `<rect x="${m.l}" y="${yH(80)}" width="${iw}" height="${yH(60) - yH(80)}" fill="rgba(43,108,176,.15)"/>`;
+        s += `<rect x="${m.l}" y="${yH(80)}" width="${iw}" height="${yH(60) - yH(80)}" class="g-banda"/>`;
         for (let k = 0; k <= 4; k++) {
             const y = m.t + ih * k / 4;
-            s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y}" y2="${y}" stroke="#E2E8F0"/>` +
-                 `<text x="${m.l - 6}" y="${y + 4}" text-anchor="end" font-size="11" fill="#2B6CB0">${100 - 25 * k}</text>` +
-                 `<text x="${W - m.r + 6}" y="${y + 4}" font-size="11" fill="#C05621">${40 - 10 * k}</text>`;
+            s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y}" y2="${y}" class="g-rej"/>` +
+                 `<text x="${m.l - 6}" y="${y + 4}" text-anchor="end" font-size="11" class="g-th">${100 - 25 * k}</text>` +
+                 `<text x="${W - m.r + 6}" y="${y + 4}" font-size="11" class="g-tt">${40 - 10 * k}</text>`;
         }
         const paso = Math.ceil(n / Math.max(2, Math.floor(iw / 46)));
         pts.forEach((q, i) => { if (i % paso === 0 || i === n - 1 && (n - 1) % paso === 0)
-            s += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle" font-size="11" fill="#4A5568">${q.et}</text>`; });
-        s += `<path d="${linea('hum', yH)}" fill="none" stroke="#2B6CB0" stroke-width="3" stroke-linejoin="round"/>`;
-        s += `<path d="${linea('temp', yT)}" fill="none" stroke="#C05621" stroke-width="3" stroke-dasharray="7 4" stroke-linejoin="round"/>`;
-        s += `<g id="cruz" visibility="hidden"><line id="cruz-l" y1="${m.t}" y2="${m.t + ih}" stroke="#718096"/>` +
-             `<circle id="cruz-h" r="5" fill="#2B6CB0" stroke="#fff" stroke-width="2"/><circle id="cruz-t" r="5" fill="#C05621" stroke="#fff" stroke-width="2"/></g></svg>`;
+            s += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle" font-size="11" class="g-tx">${q.et}</text>`; });
+        s += `<path d="${linea('hum', yH)}" fill="none" class="g-lh" stroke-width="3" stroke-linejoin="round"/>`;
+        s += `<path d="${linea('temp', yT)}" fill="none" class="g-lt" stroke-width="3" stroke-dasharray="7 4" stroke-linejoin="round"/>`;
+        s += `<g id="cruz" visibility="hidden"><line id="cruz-l" y1="${m.t}" y2="${m.t + ih}" stroke="currentColor" opacity=".5"/>` +
+             `<circle id="cruz-h" r="5" class="g-ch"/><circle id="cruz-t" r="5" class="g-ct"/></g></svg>`;
 
         cont.innerHTML = s + '<div id="tip" class="tip" hidden></div>';
         const svg = cont.querySelector('svg'), tip = $('tip'), cruz = $('cruz');
@@ -295,6 +314,68 @@ document.addEventListener('DOMContentLoaded', () => {
     new ResizeObserver(() => {
         if (cont.clientWidth && cont.clientWidth !== anchoPrevio) { anchoPrevio = cont.clientWidth; pintarEstadisticas(); }
     }).observe(cont);
+
+    // ---------------------------------------------------------------
+    // 6. EVALUACIÓN UX (panel emergente: Likert paso a paso + NPS)
+    // ---------------------------------------------------------------
+    const PREGUNTAS = [
+        { t: '¿Qué tan fácil es leer los medidores?',  a: 'Muy difícil',    b: 'Muy fácil' },
+        { t: '¿Qué tan intuitivo es el riego manual?', a: 'Nada intuitivo', b: 'Muy intuitivo' },
+        { t: '¿Qué tan claras son las alertas?',       a: 'Poco claras',    b: 'Muy claras' }
+    ];
+    const NP = PREGUNTAS.length;           // paso NP = NPS · paso NP + 1 = final
+    const modal = $('modal-ux'), cuerpoUX = $('ux-cuerpo'), btnSig = $('ux-sig'), btnAtras = $('ux-atras');
+    let paso = 0, likert = [], nps = null;
+
+    const escala = (valores, actual, extra = '') =>
+        `<div class="ux-escala ${extra}" role="radiogroup" aria-labelledby="ux-pregunta">` +
+        valores.map(v => `<label><input type="radio" name="ux-r" value="${v}"${actual === v ? ' checked' : ''}><span>${v}</span></label>`).join('') + '</div>';
+
+    function pintarUX() {
+        const likertPaso = paso < NP, esNPS = paso === NP, fin = paso > NP;
+        $('ux-titulo').textContent = fin ? 'Evaluación completada' : esNPS ? 'Net Promoter Score (NPS)' : 'Encuesta Likert (1 a 5)';
+        $('ux-progreso').textContent = likertPaso ? `Pregunta ${paso + 1} de ${NP}` : esNPS ? 'Última pregunta' : '';
+        $('ux-relleno').style.width = `${Math.min(100, (paso + 1) / (NP + 1) * 100)}%`;
+
+        if (likertPaso) {
+            const q = PREGUNTAS[paso];
+            cuerpoUX.innerHTML = `<p id="ux-pregunta" class="ux-pregunta" tabindex="-1">${q.t}</p>${escala([1, 2, 3, 4, 5], likert[paso])}` +
+                `<div class="ux-extremos"><span>1 · ${q.a}</span><span>5 · ${q.b}</span></div>`;
+        } else if (esNPS) {
+            cuerpoUX.innerHTML = '<p class="ux-ok" role="status">✅ Encuesta Likert enviada. ¡Gracias!</p>' +
+                '<p id="ux-pregunta" class="ux-pregunta" tabindex="-1">¿Qué tan probable es que recomiendes «Cultiva en Casa»?</p>' +
+                escala(Array.from({ length: 11 }, (_, i) => i), nps, 'nps') +
+                '<div class="ux-extremos"><span>0 · Improbable</span><span>10 · Muy probable</span></div>';
+        } else {
+            cuerpoUX.innerHTML = '<p id="ux-pregunta" class="ux-ok" role="status" tabindex="-1">✅ Evaluación enviada. ¡Gracias por tu opinión!</p>';
+        }
+
+        btnAtras.hidden = !(likertPaso && paso > 0);
+        btnSig.textContent = fin ? 'Cerrar' : (paso === NP - 1 || esNPS) ? 'Enviar' : 'Siguiente';
+        btnSig.disabled = likertPaso ? likert[paso] == null : esNPS ? nps == null : false;
+        const foco = $('ux-pregunta'); if (foco) foco.focus();
+    }
+
+    cuerpoUX.addEventListener('change', e => {
+        const v = Number(e.target.value);
+        if (paso < NP) likert[paso] = v; else nps = v;
+        btnSig.disabled = false;
+    });
+    btnSig.addEventListener('click', () => {
+        if (paso > NP) { modal.close(); return; }
+        if (paso === NP - 1) console.log('Likert enviado:', likert);
+        if (paso === NP) console.log('NPS enviado:', nps);
+        paso++; pintarUX();
+    });
+    btnAtras.addEventListener('click', () => { paso--; pintarUX(); });
+    $('ux-cerrar').addEventListener('click', () => modal.close());
+    modal.addEventListener('close', () => document.body.classList.remove('modal-abierto'));
+    $('btn-evaluacion-ux').addEventListener('click', () => {
+        paso = 0; likert = []; nps = null;
+        document.body.classList.add('modal-abierto');   // bloquea el scroll de la página de fondo
+        modal.showModal();
+        pintarUX();
+    });
 
     pintarEstadisticas();
 });
