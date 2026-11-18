@@ -26,11 +26,11 @@
     --pad: clamp(16px, 4vw, 32px);
 
     /* Tema (claro por defecto) */
-    --fondo: #E8F5E9; --superficie: #FFFFFF; --titulo: #1B4332; --suave: var(--suave);
+    --fondo: #E8F5E9; --superficie: #FFFFFF; --titulo: #1B4332; --suave: #4A5568;
     --borde: #E0E0E0; --chip: #EAECEB; --rejilla: #E2E8F0; --boton: #1B4332;
     --c-hum: #2B6CB0; --c-temp: #C05621; --banda: rgba(43,108,176,.15); --zona-alta: #1A202C;
     --tip-bg: #1A202C; --tip-tx: #FFFFFF;
-    --sq-bg: var(--sq-bg); --sq-tx: var(--sq-tx); --en-bg: var(--en-bg); --en-tx: var(--en-tx);
+    --sq-bg: #FEEBC8; --sq-tx: #7B341E; --en-bg: #EBF8FF; --en-tx: #2C5282;
 }
 :root[data-theme="dark"] {
     color-scheme: dark;
